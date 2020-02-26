@@ -1,19 +1,24 @@
 const express = require('express');
+const http = require('http');
 const dotenv = require('dotenv');
-const socket = require('socket.io');
+const socketIo = require('socket.io');
+const axios = require('axios');
 
 dotenv.config({path: './config/config.env'})
 
 // App setup
 const PORT = process.env.PORT || 5000;
+const index = require("./routes/index");
 
 const app = express();
-app.get('/', (req, res) => res.send('Hello World'));
-const server = app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
+app.use(index);
 
-// Static files
-app.use(express.static('client'));
+const server = http.createServer(app);
+server.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
 
 // Socket setup
-const io = socket(server);
-io.on('connection', function(socket){console.log('made socket connection')});
+const io = socketIo(server);
+io.on('connection', socket => {
+    console.log('New client connected');
+    socket.on("disconnect", () => console.log("Client disconnected"));
+});
