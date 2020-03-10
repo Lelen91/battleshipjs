@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import queryString from 'query-string';
 import io from "socket.io-client";
 
-// import TextContainer from '../TextContainer/TextContainer';
+import TextContainer from '../TextContainer/TextContainer';
 import Messages from '../Messages/Messages';
 import InfoBar from '../InfoBar/InfoBar';
 import Input from '../Input/Input';
@@ -43,15 +43,15 @@ const Room = ({ location }) => {
       setMessages([...messages, message ]);
     });
 
-    // socket.on('roomData', ({ users }) => {
-    //   setUsers(users);
-    // })
+    socket.on('roomData', ({ users }) => {
+      setUsers(users);
+    })
 
-    // return () => {
-    //   socket.emit('disconnect');
+    return () => {
+      socket.emit('disconnect');
 
-    //   socket.off();
-    // }
+      socket.off();
+    }
   }, [messages])
 
   const sendMessage = e => {
@@ -62,8 +62,6 @@ const Room = ({ location }) => {
     }
   }
 
-  console.log(message, messages);
-
   return (
     <div className="outerContainer">
       <div className="container">
@@ -71,7 +69,7 @@ const Room = ({ location }) => {
           <Messages messages={messages} name={name} />
           <Input message={message} setMessage={setMessage} sendMessage={sendMessage} />
       </div>
-      {/* <TextContainer users={users}/> */}
+      <TextContainer users={users}/>
     </div>
   );
 }

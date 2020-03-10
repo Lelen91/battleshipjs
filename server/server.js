@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const dotenv = require('dotenv');
 const socketIo = require('socket.io');
-// const axios = require('axios');
+const cors = require('cors');
 
 const { addUser, removeUser, getUser, getRoomUsers } = require('./users/index'); 
 
@@ -14,6 +14,7 @@ const router = require("./routes/index");
 
 const app = express();
 app.use(router);
+app.use(cors());
 
 const server = http.createServer(app);
 server.listen(PORT, () => console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
@@ -34,6 +35,8 @@ io.on('connection', socket => {
 
         socket.join(user.room);
 
+        io.to(user.room).emit('roomData', { room: user.room, users: getRoomUsers(user.room)})
+
         //Ensure the callback function in the front end gets called every time, the if statement in the front end won't be executed if there's no error
         callback();
     });
@@ -42,7 +45,8 @@ io.on('connection', socket => {
         const user = getUser(socket.id);  
 
         io.to(user.room).emit('message', { user: user.name, text: message });
-
+        io.to(user.room).emit('roomData', { room: user.room, users: getRoomUsers(user.room)});
+        
         callback();
     });
 
